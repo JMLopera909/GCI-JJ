@@ -5,7 +5,25 @@ document.addEventListener('DOMContentLoaded', function () {
   const passwordInput = document.getElementById('password');
   const confirmPasswordInput = document.getElementById('confirm_password');
   const feedback = document.getElementById('formFeedback');
-  const url = 'http://127.0.0.1:8000/registro';
+  const url = window.location.origin + '/registro';
+
+  console.log('Registro: register.js cargado', {
+    frontendOrigin: window.location.origin,
+    apiUrl: url,
+    formInitialized: Boolean(form)
+  });
+
+  if (!form || !submitButton || !passwordInput || !confirmPasswordInput || !feedback) {
+    console.error('Registro: no se pudieron inicializar los elementos del formulario.', {
+      form,
+      submitButton,
+      passwordInput,
+      confirmPasswordInput,
+      feedback
+    });
+    return;
+  }
+
   const originalButtonHtml = submitButton.innerHTML;
 
   // Actualiza el texto de estado y la clase CSS del mensaje
@@ -92,7 +110,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (response.ok) {
         // En caso de registro exitoso, redirigimos a la página de éxito.
-        window.location.href = 'RExitoso.html';
+        window.location.href = './RExitoso.html';
         return;
       }
 
@@ -109,7 +127,8 @@ document.addEventListener('DOMContentLoaded', function () {
         setFeedback('No se pudo completar el registro. Intenta de nuevo.', 'error');
       }
     } catch (error) {
-      setFeedback('Error de red. Verifica que el backend esté corriendo en http://127.0.0.1:8000', 'error');
+      setFeedback('Error de red. Verifica que el backend esté corriendo en el mismo host y puerto que el frontend.', 'error');
+      console.error('Registro: error de red al enviar datos', error);
     } finally {
       setLoading(false);
       updateSubmitState();
