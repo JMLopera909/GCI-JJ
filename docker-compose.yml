@@ -1,0 +1,40 @@
+services:
+
+  backend:
+    build: .
+    container_name: gci-jj-backend
+
+    ports:
+      - "8085:8085"
+
+    depends_on:
+      - postgres
+
+    environment:
+      DATABASE_URL: postgresql://admin:admin123@postgres:5432/gci_jj_db
+
+    volumes:
+      - .:/app
+
+    restart: always
+
+  postgres:
+    image: postgres:16
+
+    container_name: postgres-db
+
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: gci_jj_db
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    restart: always
+
+volumes:
+  postgres_data:

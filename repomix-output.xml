@@ -1,0 +1,1707 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+app/
+  models/
+    __init__.py
+    pacientes_model.py
+    roles_model.py
+    usuarios_model.py
+  routes/
+    auth_routes.py
+    paciente_routes.py
+  schemas/
+    paciente_schema.py
+    usuario_schema.py
+  database.py
+  main.py
+static/
+  js/
+    dashboard.js
+    login.js
+    register.js
+  dashboard.html
+  index.html
+  RExitoso.html
+  Rpacientes.html
+dockerfile
+init_db.py
+README.md
+requirements.txt
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="app/models/__init__.py">
+from app.models.roles_model import Rol
+from app.models.usuarios_model import Usuario
+from app.models.pacientes_model import Paciente
+</file>
+
+<file path="app/models/pacientes_model.py">
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from app.database import Base
+
+class Paciente(Base):
+    __tablename__ = "pacientes"
+    id = Column(Integer, primary_key=True, index=True)
+    usuario_id = Column(Integer, ForeignKey("usuarios.id"))
+    paciente_afiliado = Column(Boolean, default=False)
+    cantidad_inasistencias = Column(Integer, default=0)
+    bloqueado = Column(Boolean, default=False)
+</file>
+
+<file path="app/models/roles_model.py">
+from sqlalchemy import Column, Integer, String
+from app.database import Base
+
+class Rol(Base):
+    __tablename__ = "roles"
+    id = Column(Integer, primary_key=True, index=True)
+    nombre_rol = Column(String, unique=True, nullable=False)
+</file>
+
+<file path="app/models/usuarios_model.py">
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
+from app.database import Base
+
+class Usuario(Base):
+    __tablename__ = "usuarios"
+    id = Column(Integer, primary_key=True, index=True)
+    nombre = Column(String, nullable=False)
+    primer_apellido = Column(String, nullable=False)
+    segundo_apellido = Column(String)
+    tipo_documento = Column(String, nullable=False)
+    documento = Column(String, unique=True, nullable=False)
+    telefono = Column(String)
+    correo = Column(String, unique=True, nullable=False)
+    username = Column(String, unique=True, nullable=False)
+    password = Column(String, nullable=False)
+    rol_id = Column(Integer, ForeignKey("roles.id"))
+    activo = Column(Boolean, default=True)
+</file>
+
+<file path="app/routes/paciente_routes.py">
+
+</file>
+
+<file path="app/schemas/paciente_schema.py">
+from pydantic import BaseModel
+
+class PacienteCreate(BaseModel):
+    paciente_afiliado: bool = False
+
+
+class PacienteResponse(BaseModel):
+    id: int
+    usuario_id: int
+    paciente_afiliado: bool
+    numero_inasistencias: int
+    bloqueado: bool
+
+    class Config:
+        from_attributes = True
+</file>
+
+<file path="static/js/dashboard.js">
+function getStoredUser() {
+  const raw = localStorage.getItem('gciJJUser');
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch (error) {
+    console.error('Error parsing stored user:', error);
+    return null;
+  }
+}
+
+function populateDashboard(user) {
+  const patientName = document.getElementById('patientName');
+  const patientFirstName = document.getElementById('patientFirstName');
+  const patientDocument = document.getElementById('patientDocument');
+  const patientEmail = document.getElementById('patientEmail');
+  const patientPhone = document.getElementById('patientPhone');
+
+  if (patientName) {
+    patientName.textContent = `${user.nombre} ${user.primer_apellido}`;
+  }
+  if (patientFirstName) {
+    patientFirstName.textContent = user.nombre;
+  }
+  if (patientDocument) {
+    patientDocument.textContent = `${user.tipo_documento} ${user.documento}`;
+  }
+  if (patientEmail) {
+    patientEmail.textContent = user.correo;
+  }
+  if (patientPhone) {
+    patientPhone.textContent = user.telefono || 'No disponible';
+  }
+}
+
+function redirectToLogin() {
+  window.location.href = 'index.html';
+}
+
+function setupLogout() {
+  const logoutButton = document.getElementById('logoutButton');
+  if (!logoutButton) return;
+
+  logoutButton.addEventListener('click', () => {
+    localStorage.removeItem('gciJJUser');
+    redirectToLogin();
+  });
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const user = getStoredUser();
+  if (!user) {
+    redirectToLogin();
+    return;
+  }
+  populateDashboard(user);
+  setupLogout();
+});
+</file>
+
+<file path="static/js/login.js">
+const loginForm = document.getElementById('loginForm');
+const loginFeedback = document.getElementById('loginFeedback');
+
+function showLoginError(message) {
+  if (!loginFeedback) return;
+  loginFeedback.textContent = message;
+  loginFeedback.classList.remove('hidden');
+}
+
+function hideLoginError() {
+  if (!loginFeedback) return;
+  loginFeedback.textContent = '';
+  loginFeedback.classList.add('hidden');
+}
+
+if (loginForm) {
+  loginForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    hideLoginError();
+
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+
+    const username = usernameInput?.value.trim();
+    const password = passwordInput?.value || '';
+
+    if (!username || !password) {
+      showLoginError('Por favor ingresa usuario y contraseña.');
+      return;
+    }
+
+    try {
+      const response = await fetch('/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username, password })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        showLoginError(data.detail || 'Credenciales incorrectas, inténtalo de nuevo.');
+        return;
+      }
+
+      localStorage.setItem('gciJJUser', JSON.stringify(data));
+      window.location.href = 'dashboard.html';
+    } catch (error) {
+      showLoginError('No se pudo conectar con el servidor. Intenta nuevamente.');
+      console.error('Login error:', error);
+    }
+  });
+}
+</file>
+
+<file path="static/dashboard.html">
+<!DOCTYPE html>
+<html class="light" lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>GCI-JJ - Dashboard Paciente</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary-container": "#0052cc",
+            "surface-container-high": "#dee9ff",
+            "secondary-fixed-dim": "#5dd6f3",
+            "tertiary-container": "#006844",
+            "surface-tint": "#0c56d0",
+            "error": "#ba1a1a",
+            "surface-container-low": "#f0f3ff",
+            "surface": "#f9f9ff",
+            "on-tertiary-fixed-variant": "#005235",
+            "primary-fixed": "#dae2ff",
+            "surface-variant": "#d7e3fb",
+            "primary": "#003d9b",
+            "on-secondary-fixed": "#001f26",
+            "surface-container": "#e7eeff",
+            "secondary-fixed": "#adecff",
+            "on-secondary-container": "#006374",
+            "inverse-surface": "#253143",
+            "tertiary-fixed": "#82f9be",
+            "outline": "#737685",
+            "on-primary-fixed": "#001848",
+            "on-error-container": "#93000a",
+            "on-tertiary-fixed": "#002113",
+            "tertiary": "#004e32",
+            "secondary-container": "#6ae1ff",
+            "on-secondary": "#ffffff",
+            "surface-dim": "#cedbf2",
+            "background": "#f9f9ff",
+            "on-primary-container": "#c4d2ff",
+            "surface-bright": "#f9f9ff",
+            "primary-fixed-dim": "#b2c5ff",
+            "on-surface-variant": "#434654",
+            "on-error": "#ffffff",
+            "on-background": "#101c2d",
+            "error-container": "#ffdad6",
+            "on-tertiary": "#ffffff",
+            "on-primary-fixed-variant": "#0040a2",
+            "on-surface": "#101c2d",
+            "surface-container-lowest": "#ffffff",
+            "tertiary-fixed-dim": "#65dca4",
+            "on-secondary-fixed-variant": "#004e5d",
+            "on-primary": "#ffffff",
+            "secondary": "#00687a",
+            "outline-variant": "#c3c6d6",
+            "inverse-primary": "#b2c5ff",
+            "surface-container-highest": "#d7e3fb",
+            "on-tertiary-container": "#72e9af",
+            "inverse-on-surface": "#ebf1ff"
+          },
+          borderRadius: {
+            DEFAULT: "0.25rem",
+            lg: "0.5rem",
+            xl: "0.75rem",
+            full: "9999px"
+          },
+          spacing: {
+            md: "16px",
+            xs: "4px",
+            xxl: "48px",
+            xl: "32px",
+            lg: "24px",
+            sm: "12px",
+            "container-max": "1280px",
+            base: "8px",
+            gutter: "24px"
+          },
+          fontFamily: {
+            "headline-lg": ["Inter"],
+            "headline-md": ["Inter"],
+            "display-lg": ["Inter"],
+            caption: ["Inter"],
+            "body-lg": ["Inter"],
+            "label-md": ["Inter"],
+            "title-lg": ["Inter"],
+            "body-md": ["Inter"],
+            "headline-lg-mobile": ["Inter"]
+          },
+          fontSize: {
+            "headline-lg": ["32px", { lineHeight: "40px", letterSpacing: "-0.01em", fontWeight: "600" }],
+            "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+            "display-lg": ["48px", { lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "700" }],
+            caption: ["12px", { lineHeight: "16px", fontWeight: "400" }],
+            "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }],
+            "label-md": ["14px", { lineHeight: "20px", letterSpacing: "0.05em", fontWeight: "500" }],
+            "title-lg": ["20px", { lineHeight: "28px", fontWeight: "600" }],
+            "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+            "headline-lg-mobile": ["24px", { lineHeight: "32px", fontWeight: "600" }]
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #F4F5F7; }
+    .card-shadow { box-shadow: 0px 4px 12px rgba(9, 30, 66, 0.08); }
+  </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col">
+  <header class="bg-surface-container-lowest w-full top-0 border-b border-outline-variant z-50 sticky">
+    <div class="flex flex-col md:flex-row justify-between items-center w-full px-lg max-w-container-max mx-auto py-sm gap-sm">
+      <div class="flex items-center gap-3">
+        <div class="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">G</div>
+        <div>
+          <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-[0.15em]">Paciente</p>
+          <h1 class="font-headline-md text-headline-md text-primary">GCI-JJ</h1>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <nav class="hidden md:flex gap-6 text-body-md text-on-surface-variant">
+          <a href="#" class="hover:text-primary transition-colors">Inicio</a>
+          <a href="#" class="hover:text-primary transition-colors">Historial</a>
+          <a href="#" class="hover:text-primary transition-colors">Citas</a>
+          <a href="#" class="hover:text-primary transition-colors">Recetas</a>
+        </nav>
+        <button class="text-on-surface-variant hover:text-primary transition-colors">
+          <span class="material-symbols-outlined">notifications</span>
+        </button>
+        <div class="flex items-center gap-3">
+          <div class="h-10 w-10 rounded-full bg-surface-variant border border-outline-variant overflow-hidden">
+            <img id="patientAvatar" alt="Avatar del paciente" class="w-full h-full object-cover" src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=200&amp;q=80" />
+          </div>
+          <div class="hidden md:block">
+            <p id="patientName" class="font-body-md text-body-md text-on-background">Juan Carlos Pérez</p>
+          </div>
+          <button id="logoutButton" class="hidden md:inline-flex items-center gap-2 rounded-full border border-outline-variant bg-surface-container px-3 py-2 text-sm font-medium text-on-surface transition-colors hover:border-primary hover:bg-primary-container/10 hover:text-primary">
+            <span class="material-symbols-outlined text-[18px]">logout</span>
+            Cerrar sesión
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+  <main class="flex-grow w-full max-w-container-max mx-auto px-lg py-xl flex flex-col gap-xl">
+    <section class="grid gap-lg lg:grid-cols-[1.8fr_1fr]">
+      <div class="bg-surface-container-lowest rounded-lg border border-outline-variant card-shadow p-lg">
+        <div class="flex flex-col gap-3">
+          <div class="flex flex-col gap-2">
+            <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-[0.15em]">Resumen del paciente</p>
+            <h2 class="font-display-lg text-display-lg text-primary">Hola, <span id="patientFirstName">Juan</span></h2>
+          </div>
+          <p class="font-body-lg text-body-lg text-on-surface-variant">Revisa tu información personal, tu próxima cita y el estado de tu historial médico.</p>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <article class="rounded-2xl bg-white border border-outline-variant p-4 shadow-sm">
+              <p class="font-label-md text-label-md text-on-surface-variant">Próxima cita</p>
+              <p id="nextAppointmentDate" class="mt-2 font-title-lg text-title-lg text-on-background">24 de junio, 2026</p>
+              <p id="nextAppointmentTime" class="font-body-md text-body-md text-on-surface-variant">09:30 AM</p>
+            </article>
+            <article class="rounded-2xl bg-white border border-outline-variant p-4 shadow-sm">
+              <p class="font-label-md text-label-md text-on-surface-variant">Estado de afiliación</p>
+              <p id="membershipStatus" class="mt-2 font-title-lg text-title-lg text-on-background">Activo</p>
+              <p class="font-body-md text-body-md text-on-surface-variant">Nivel de cobertura: Básico</p>
+            </article>
+          </div>
+        </div>
+      </div>
+      <div class="grid gap-4">
+        <div class="rounded-2xl bg-white border border-outline-variant card-shadow p-lg">
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-[0.15em]">Acciones rápidas</p>
+              <h3 class="font-title-lg text-title-lg text-on-background">Tareas pendientes</h3>
+            </div>
+          </div>
+          <div class="mt-6 grid gap-3">
+            <button class="w-full rounded-xl bg-primary text-on-primary font-label-md text-label-md py-3 hover:bg-primary-container transition-colors">Ver historia clínica</button>
+            <button class="w-full rounded-xl border border-outline-variant bg-surface text-on-surface font-label-md text-label-md py-3 hover:border-primary hover:text-primary transition-colors">Solicitar nueva cita</button>
+          </div>
+        </div>
+        <div class="rounded-2xl bg-white border border-outline-variant card-shadow p-lg">
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-[0.15em]">Notificaciones</p>
+              <h3 class="font-title-lg text-title-lg text-on-background">Actualizaciones</h3>
+            </div>
+          </div>
+          <div class="mt-6 space-y-4 text-body-md text-on-surface-variant">
+            <p>✔ Tu solicitud de cita fue confirmada.</p>
+            <p>✔ Tienes resultados de laboratorio nuevos.</p>
+            <p>✔ Revisa tu próxima consulta con el doctor.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="grid gap-lg lg:grid-cols-2">
+      <div class="bg-white border border-outline-variant rounded-3xl card-shadow p-lg">
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-[0.15em]">Información básica</p>
+            <h2 class="font-title-lg text-title-lg text-on-background">Datos del paciente</h2>
+          </div>
+          <button class="text-primary font-label-md hover:text-primary-fixed-variant transition-colors">Editar</button>
+        </div>
+        <div class="mt-6 grid gap-4 sm:grid-cols-2">
+          <div class="rounded-2xl bg-surface-container-lowest p-4">
+            <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-[0.15em]">Documento</p>
+            <p id="patientDocument" class="mt-2 font-body-md text-body-md text-on-background">12345678-9</p>
+          </div>
+          <div class="rounded-2xl bg-surface-container-lowest p-4">
+            <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-[0.15em]">Correo</p>
+            <p id="patientEmail" class="mt-2 font-body-md text-body-md text-on-background">juan.perez@ejemplo.com</p>
+          </div>
+          <div class="rounded-2xl bg-surface-container-lowest p-4">
+            <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-[0.15em]">Teléfono</p>
+            <p id="patientPhone" class="mt-2 font-body-md text-body-md text-on-background">312 345 6789</p>
+          </div>
+          <div class="rounded-2xl bg-surface-container-lowest p-4">
+            <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-[0.15em]">Fecha de nacimiento</p>
+            <p id="patientBirthday" class="mt-2 font-body-md text-body-md text-on-background">15 de mayo, 1980</p>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white border border-outline-variant rounded-3xl card-shadow p-lg">
+        <div>
+          <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-[0.15em]">Resumen médico</p>
+          <h2 class="font-title-lg text-title-lg text-on-background">Últimos datos</h2>
+        </div>
+        <div class="mt-6 grid gap-4">
+          <div class="rounded-2xl bg-surface-container-lowest p-4">
+            <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-[0.15em]">Última visita</p>
+            <p id="lastVisit" class="mt-2 font-body-md text-body-md text-on-background">6 de mayo, 2026</p>
+          </div>
+          <div class="rounded-2xl bg-surface-container-lowest p-4">
+            <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-[0.15em]">Médico asignado</p>
+            <p id="assignedDoctor" class="mt-2 font-body-md text-body-md text-on-background">Dra. Mariana López</p>
+          </div>
+          <div class="rounded-2xl bg-surface-container-lowest p-4">
+            <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-[0.15em]">Estado de salud</p>
+            <p id="healthStatus" class="mt-2 font-body-md text-body-md text-on-background">Estable</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="bg-surface-container-low w-full border-t border-outline-variant mt-auto">
+    <div class="flex flex-col md:flex-row justify-between items-center w-full px-lg py-xl max-w-container-max mx-auto gap-lg">
+      <div class="font-title-lg text-title-lg text-primary">GCI-JJ</div>
+      <nav class="flex flex-wrap justify-center gap-md">
+        <a class="font-caption text-caption text-on-surface-variant hover:text-on-surface transition-colors" href="#">Privacidad</a>
+        <a class="font-caption text-caption text-on-surface-variant hover:text-on-surface transition-colors" href="#">Términos</a>
+        <a class="font-caption text-caption text-on-surface-variant hover:text-on-surface transition-colors" href="#">Soporte</a>
+      </nav>
+      <div class="font-caption text-caption text-on-surface-variant text-center md:text-right">© 2026 GCI-JJ Medical Group.</div>
+    </div>
+  </footer>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
+</file>
+
+<file path="static/RExitoso.html">
+<!DOCTYPE html>
+
+<html class="h-full" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Registration Success - GCI-JJ</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed-variant": "#0040a2",
+                        "surface-container-low": "#f0f3ff",
+                        "surface-dim": "#cedbf2",
+                        "on-surface-variant": "#434654",
+                        "inverse-on-surface": "#ebf1ff",
+                        "secondary-fixed-dim": "#5dd6f3",
+                        "on-background": "#101c2d",
+                        "tertiary": "#004e32",
+                        "surface-bright": "#f9f9ff",
+                        "on-primary-fixed": "#001848",
+                        "surface-tint": "#0c56d0",
+                        "on-error-container": "#93000a",
+                        "background": "#f9f9ff",
+                        "on-tertiary-fixed": "#002113",
+                        "primary-fixed": "#dae2ff",
+                        "surface-variant": "#d7e3fb",
+                        "surface-container": "#e7eeff",
+                        "secondary-container": "#6ae1ff",
+                        "secondary": "#00687a",
+                        "on-secondary-fixed": "#001f26",
+                        "primary": "#003d9b",
+                        "surface-container-highest": "#d7e3fb",
+                        "error": "#ba1a1a",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-surface": "#253143",
+                        "primary-fixed-dim": "#b2c5ff",
+                        "outline": "#737685",
+                        "on-primary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "tertiary-container": "#006844",
+                        "primary-container": "#0052cc",
+                        "on-tertiary-fixed-variant": "#005235",
+                        "on-primary-container": "#c4d2ff",
+                        "secondary-fixed": "#adecff",
+                        "on-secondary-container": "#006374",
+                        "surface": "#f9f9ff",
+                        "on-surface": "#101c2d",
+                        "on-secondary-fixed-variant": "#004e5d",
+                        "surface-container-high": "#dee9ff",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed": "#82f9be",
+                        "tertiary-fixed-dim": "#65dca4",
+                        "outline-variant": "#c3c6d6",
+                        "on-tertiary-container": "#72e9af",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "inverse-primary": "#b2c5ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "8px",
+                        "md": "16px",
+                        "xs": "4px",
+                        "xxl": "48px",
+                        "lg": "24px",
+                        "gutter": "24px",
+                        "xl": "32px",
+                        "sm": "12px",
+                        "container-max": "1280px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "title-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "caption": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "title-lg": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "caption": ["12px", {"lineHeight": "16px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-full bg-background flex flex-col items-center justify-center font-body-md text-on-surface antialiased">
+<!-- Main Container -->
+<main class="w-full max-w-[480px] px-gutter py-xxl mx-auto text-center flex flex-col items-center">
+<!-- Branding -->
+<div class="mb-xl flex flex-col items-center gap-base">
+<span class="material-symbols-outlined text-primary text-[48px]" style="font-variation-settings: 'FILL' 1;">
+                medical_services
+            </span>
+<h1 class="font-display-lg text-display-lg text-primary">GCI-JJ</h1>
+</div>
+<!-- Success Icon -->
+<div class="mb-lg rounded-full bg-tertiary-container/10 p-md flex items-center justify-center">
+<span class="material-symbols-outlined text-[64px] text-tertiary" style="font-variation-settings: 'FILL' 1;">
+                check_circle
+            </span>
+</div>
+<!-- Typography & Content -->
+<div class="mb-xxl flex flex-col gap-base">
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Registro exitoso</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-[340px] mx-auto">
+                Tu cuenta ha sido creada correctamente. Ahora puedes acceder al sistema.
+            </p>
+</div>
+<!-- Primary Action Button -->
+<a href="index.html" class="w-full max-w-[320px] bg-primary text-on-primary font-title-lg text-title-lg py-[14px] px-lg rounded-lg hover:bg-primary-container transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 flex items-center justify-center gap-base">
+            Iniciar sesión
+            <span class="material-symbols-outlined text-[24px]">
+                arrow_forward
+            </span>
+</a>
+</main>
+</body></html>
+</file>
+
+<file path="init_db.py">
+from app.database import engine, Base
+
+from app.models.roles_model import Rol
+from app.models.usuarios_model import Usuario
+from app.models.pacientes_model import Paciente
+
+
+Base.metadata.create_all(bind=engine)
+
+print("Tablas creadas correctamente")
+</file>
+
+<file path="app/routes/auth_routes.py">
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import or_
+
+from sqlalchemy.orm import Session
+
+from app.database import get_db
+
+from app.models.usuarios_model import Usuario
+from app.models.pacientes_model import Paciente
+
+from app.schemas.usuario_schema import UsuarioCreate, UsuarioResponse, LoginRequest
+
+
+router = APIRouter()
+
+@router.post("/login", response_model=UsuarioResponse)
+def login_usuario(
+    login: LoginRequest,
+    db: Session = Depends(get_db)
+):
+    usuario = db.query(Usuario).filter(
+        or_(Usuario.username == login.username, Usuario.correo == login.username),
+        Usuario.password == login.password
+    ).first()
+
+    if not usuario:
+        raise HTTPException(
+            status_code=401,
+            detail="Usuario o contraseña incorrectos"
+        )
+
+    return usuario
+
+
+@router.post("/registro", response_model=UsuarioResponse)
+
+def registrar_usuario(
+    usuario: UsuarioCreate,
+    db: Session = Depends(get_db)
+):
+
+    usuario_existente = db.query(Usuario).filter(
+        Usuario.correo == usuario.correo
+    ).first()
+
+    if usuario_existente:
+
+        raise HTTPException(
+            status_code=400,
+            detail="El correo ya está registrado"
+        )
+
+    nuevo_usuario = Usuario(
+
+        nombre=usuario.nombre,
+
+        primer_apellido=usuario.primer_apellido,
+
+        segundo_apellido=usuario.segundo_apellido,
+
+        tipo_documento=usuario.tipo_documento,
+
+        documento=usuario.documento,
+
+        telefono=usuario.telefono,
+
+        correo=usuario.correo,
+
+        username=usuario.username,
+
+        password=usuario.password,
+
+        rol_id=2
+    )
+
+    db.add(nuevo_usuario)
+
+    db.commit()
+
+    db.refresh(nuevo_usuario)
+
+    nuevo_paciente = Paciente(
+
+        usuario_id=nuevo_usuario.id,
+
+        paciente_afiliado=False,
+
+        cantidad_inasistencias=0,
+
+        bloqueado=False
+    )
+
+    db.add(nuevo_paciente)
+
+    db.commit()
+
+    return nuevo_usuario
+</file>
+
+<file path="app/schemas/usuario_schema.py">
+from pydantic import BaseModel, EmailStr
+from typing import Optional
+
+
+class UsuarioCreate(BaseModel):
+    nombre: str
+    primer_apellido: str
+    segundo_apellido: Optional[str] = None
+    tipo_documento: str
+    documento: str
+    telefono: Optional[str] = None
+    correo: EmailStr
+    username: str
+    password: str
+
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+
+class UsuarioResponse(BaseModel):
+    id: int
+    nombre: str
+    primer_apellido: str
+    segundo_apellido: Optional[str] = None
+    tipo_documento: str
+    documento: str
+    telefono: Optional[str] = None
+    correo: EmailStr
+    username: str
+    activo: bool
+
+    class Config:
+        from_attributes = True
+</file>
+
+<file path="app/database.py">
+from sqlalchemy import create_engine
+from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import sessionmaker
+import os
+
+# Obtiene la URL de conexión
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+
+# Motor de conexión
+engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+
+
+# Sesión de base de datos
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine
+)
+
+
+# Base para modelos
+Base = declarative_base()
+
+def get_db():
+
+    db = SessionLocal()
+
+    try:
+
+        yield db
+
+    finally:
+
+        db.close()
+</file>
+
+<file path="app/main.py">
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+import app.models
+
+from app.routes.auth_routes import router as auth_router
+
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["*"]
+)
+
+app.include_router(auth_router)
+
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
+</file>
+
+<file path="static/js/register.js">
+document.addEventListener('DOMContentLoaded', function () {
+  // Elementos del formulario de registro
+  const form = document.getElementById('registrationForm');
+  const submitButton = document.getElementById('submit_button');
+  const passwordInput = document.getElementById('password');
+  const confirmPasswordInput = document.getElementById('confirm_password');
+  const feedback = document.getElementById('formFeedback');
+  const url = window.location.origin + '/registro';
+
+  console.log('Registro: register.js cargado', {
+    frontendOrigin: window.location.origin,
+    apiUrl: url,
+    formInitialized: Boolean(form)
+  });
+
+  if (!form || !submitButton || !passwordInput || !confirmPasswordInput || !feedback) {
+    console.error('Registro: no se pudieron inicializar los elementos del formulario.', {
+      form,
+      submitButton,
+      passwordInput,
+      confirmPasswordInput,
+      feedback
+    });
+    return;
+  }
+
+  const originalButtonHtml = submitButton.innerHTML;
+
+  // Actualiza el texto de estado y la clase CSS del mensaje
+  function setFeedback(message, type = 'info') {
+    const color = type === 'error' ? 'text-error' : 'text-on-surface-variant';
+    feedback.textContent = message;
+    feedback.className = `pt-2 text-sm font-body-md ${color}`;
+  }
+
+  function validatePasswords() {
+    if (confirmPasswordInput.value && passwordInput.value !== confirmPasswordInput.value) {
+      confirmPasswordInput.setCustomValidity('Las contraseñas no coinciden');
+      setFeedback('Las contraseñas no coinciden.', 'error');
+    } else {
+      confirmPasswordInput.setCustomValidity('');
+    }
+  }
+
+  function updateSubmitState() {
+    validatePasswords();
+    const isValid = form.checkValidity();
+    submitButton.disabled = !isValid;
+    submitButton.setAttribute('aria-disabled', String(!isValid));
+    submitButton.classList.toggle('bg-primary', isValid);
+    submitButton.classList.toggle('text-on-primary', isValid);
+    submitButton.classList.toggle('cursor-pointer', isValid);
+    submitButton.classList.toggle('bg-surface-variant', !isValid);
+    submitButton.classList.toggle('text-on-surface-variant', !isValid);
+    submitButton.classList.toggle('cursor-not-allowed', !isValid);
+    if (isValid) {
+      feedback.textContent = '';
+    }
+  }
+
+  function setLoading(isLoading) {
+    submitButton.disabled = isLoading || !form.checkValidity();
+    submitButton.setAttribute('aria-busy', String(isLoading));
+    submitButton.classList.toggle('opacity-70', isLoading);
+    submitButton.classList.toggle('cursor-not-allowed', isLoading);
+    submitButton.innerHTML = isLoading ? 'Enviando...' : originalButtonHtml;
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    validatePasswords();
+
+    if (!form.checkValidity()) {
+      setFeedback('Completa todos los campos requeridos antes de enviar.', 'error');
+      return;
+    }
+
+    setLoading(true);
+    setFeedback('Enviando datos al servidor...', 'info');
+
+    // Build payload exactly according to the backend schema.
+    // Los campos de fecha de nacimiento son parte de la UI actual,
+    // pero el backend existente de /registro no los consume.
+    const payload = {
+      nombre: form.nombre.value.trim(),
+      primer_apellido: form.primer_apellido.value.trim(),
+      segundo_apellido: form.segundo_apellido.value.trim() || undefined,
+      tipo_documento: form.tipo_documento.value,
+      documento: form.documento.value.trim(),
+      correo: form.correo.value.trim(),
+      username: form.username.value.trim(),
+      password: passwordInput.value
+    };
+
+    const telefonoValue = form.telefono.value.trim();
+    if (telefonoValue) {
+      payload.telefono = telefonoValue;
+    }
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const body = await response.json().catch(() => ({}));
+
+      if (response.ok) {
+        // En caso de registro exitoso, redirigimos a la página de éxito.
+        window.location.href = './RExitoso.html';
+        return;
+      }
+
+      if (body.detail) {
+        if (Array.isArray(body.detail)) {
+          const fieldErrors = body.detail.map((item) => item.msg || item.text).join(' ');
+          setFeedback(fieldErrors || 'Error de validación en el backend.', 'error');
+        } else if (typeof body.detail === 'string') {
+          setFeedback(body.detail, 'error');
+        } else {
+          setFeedback('Error inesperado del servidor.', 'error');
+        }
+      } else {
+        setFeedback('No se pudo completar el registro. Intenta de nuevo.', 'error');
+      }
+    } catch (error) {
+      setFeedback('Error de red. Verifica que el backend esté corriendo en el mismo host y puerto que el frontend.', 'error');
+      console.error('Registro: error de red al enviar datos', error);
+    } finally {
+      setLoading(false);
+      updateSubmitState();
+    }
+  }
+
+  form.addEventListener('input', updateSubmitState);
+  form.addEventListener('change', updateSubmitState);
+  form.addEventListener('submit', handleSubmit);
+  updateSubmitState();
+});
+</file>
+
+<file path="static/index.html">
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Iniciar Sesión - GCI-JJ</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            font-feature-settings: 'liga';
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed": "#001848",
+                        "outline": "#737685",
+                        "tertiary": "#004e32",
+                        "on-background": "#101c2d",
+                        "background": "#f9f9ff",
+                        "on-primary-fixed-variant": "#0040a2",
+                        "primary-fixed": "#dae2ff",
+                        "surface-container": "#e7eeff",
+                        "inverse-surface": "#253143",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#5dd6f3",
+                        "on-secondary-fixed": "#001f26",
+                        "on-tertiary-container": "#72e9af",
+                        "inverse-on-surface": "#ebf1ff",
+                        "secondary-container": "#6ae1ff",
+                        "on-tertiary-fixed": "#002113",
+                        "outline-variant": "#c3c6d6",
+                        "primary": "#003d9b",
+                        "surface-container-high": "#dee9ff",
+                        "on-primary-container": "#c4d2ff",
+                        "tertiary-fixed-dim": "#65dca4",
+                        "primary-fixed-dim": "#b2c5ff",
+                        "on-secondary-container": "#006374",
+                        "on-tertiary": "#ffffff",
+                        "on-surface": "#101c2d",
+                        "inverse-primary": "#b2c5ff",
+                        "surface-tint": "#0c56d0",
+                        "secondary": "#00687a",
+                        "error-container": "#ffdad6",
+                        "on-surface-variant": "#434654",
+                        "surface": "#f9f9ff",
+                        "tertiary-fixed": "#82f9be",
+                        "on-error": "#ffffff",
+                        "surface-dim": "#cedbf2",
+                        "on-secondary-fixed-variant": "#004e5d",
+                        "tertiary-container": "#006844",
+                        "primary-container": "#0052cc",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "surface-container-highest": "#d7e3fb",
+                        "on-tertiary-fixed-variant": "#005235",
+                        "surface-bright": "#f9f9ff",
+                        "error": "#ba1a1a",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed": "#adecff",
+                        "surface-container-low": "#f0f3ff",
+                        "surface-variant": "#d7e3fb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "xl": "32px",
+                        "sm": "12px",
+                        "xxl": "48px",
+                        "md": "16px",
+                        "container-max": "1280px",
+                        "base": "8px",
+                        "gutter": "24px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "caption": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "title-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "caption": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-surface-container-low min-h-screen flex flex-col justify-center items-center p-md md:p-lg antialiased">
+<!-- Main Container -->
+<main class="w-full max-w-[440px]">
+<!-- Login Card -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg md:p-xl shadow-[0_4px_12px_rgba(9,30,66,0.08)] relative overflow-hidden">
+<!-- Subtle Top Accent -->
+<div class="absolute top-0 left-0 right-0 h-xs bg-primary"></div>
+<!-- Branding Header -->
+<div class="flex flex-col items-center justify-center mb-xl">
+<div class="flex items-center gap-base mb-sm">
+<span class="material-symbols-outlined text-primary text-[32px]" style="font-variation-settings: 'FILL' 1;">medical_services</span>
+<h1 class="font-headline-md text-headline-md text-primary tracking-tight">GCI-JJ</h1>
+</div>
+<h2 class="font-title-lg text-title-lg text-on-surface text-center mb-xs">Bienvenido de nuevo</h2>
+<p class="font-body-md text-body-md text-on-surface-variant text-center">Ingresa tus credenciales para acceder al sistema.</p>
+</div>
+<!-- Login Form -->
+<form action="#" class="flex flex-col gap-md" method="POST" id="loginForm">
+<!-- Email/Username Field -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface" for="username">Nombre de usuario o correo electrónico</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-sm text-outline pointer-events-none">person</span>
+<input class="w-full h-[48px] pl-[44px] pr-md rounded-lg border border-outline-variant bg-surface-container-lowest font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-outline-variant" id="username" name="username" placeholder="ejemplo@gci-jj.com" type="text"/>
+</div>
+</div>
+<!-- Password Field -->
+<div class="flex flex-col gap-xs">
+<div class="flex justify-between items-center">
+<label class="font-label-md text-label-md text-on-surface" for="password">Contraseña</label>
+<a class="font-label-md text-label-md text-primary hover:text-primary-container transition-colors" href="#">¿Olvidaste tu contraseña?</a>
+</div>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-sm text-outline pointer-events-none">lock</span>
+<input class="w-full h-[48px] pl-[44px] pr-md rounded-lg border border-outline-variant bg-surface-container-lowest font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-outline-variant" id="password" name="password" placeholder="••••••••" type="password"/>
+</div>
+</div>
+<!-- Submit Button -->
+<button class="w-full h-[48px] mt-sm bg-primary text-on-primary font-label-md text-label-md rounded-lg hover:bg-primary-container transition-colors flex items-center justify-center gap-base focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary shadow-sm" type="submit">
+                    Iniciar sesión
+                    <span class="material-symbols-outlined text-[20px]">login</span>
+</button>
+<div id="loginFeedback" role="status" aria-live="polite" class="mt-4 text-sm font-body-md text-error hidden"></div>
+</form>
+<!-- Divider -->
+<div class="mt-lg mb-lg relative flex items-center justify-center">
+<hr class="w-full border-outline-variant"/>
+<span class="absolute bg-surface-container-lowest px-sm font-caption text-caption text-on-surface-variant uppercase tracking-wider">O</span>
+</div>
+<!-- Create Account Action -->
+<div>
+<a class="w-full h-[48px] flex items-center justify-center border-2 border-primary text-primary font-label-md text-label-md rounded-lg hover:bg-surface-container-low transition-colors gap-base" href="Rpacientes.html">
+<span class="material-symbols-outlined text-[20px]">person_add</span>
+                    Crear cuenta
+                </a>
+</div>
+</div>
+<!-- Footer Text (Optional for Login) -->
+<div class="mt-lg text-center">
+<p class="font-caption text-caption text-on-surface-variant">
+                Al iniciar sesión, aceptas nuestros <a class="text-primary hover:underline" href="#">Términos de Servicio</a> y <a class="text-primary hover:underline" href="#">Política de Privacidad</a>.
+            </p>
+</div>
+</main>
+<script src="js/login.js"></script>
+</body></html>
+</file>
+
+<file path="static/Rpacientes.html">
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Registro de Nuevo Paciente - GCI-JJ</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-fixed": "#82f9be",
+                      "inverse-primary": "#b2c5ff",
+                      "on-tertiary-fixed-variant": "#005235",
+                      "surface-container-highest": "#d7e3fb",
+                      "on-primary-container": "#c4d2ff",
+                      "error": "#ba1a1a",
+                      "on-surface-variant": "#434654",
+                      "on-background": "#101c2d",
+                      "on-primary-fixed": "#001848",
+                      "surface-tint": "#0c56d0",
+                      "primary-fixed-dim": "#b2c5ff",
+                      "outline-variant": "#c3c6d6",
+                      "surface-container-low": "#f0f3ff",
+                      "surface-container-high": "#dee9ff",
+                      "surface-container-lowest": "#ffffff",
+                      "secondary-container": "#6ae1ff",
+                      "inverse-surface": "#253143",
+                      "tertiary-container": "#006844",
+                      "tertiary-fixed-dim": "#65dca4",
+                      "secondary-fixed-dim": "#5dd6f3",
+                      "on-error-container": "#93000a",
+                      "on-primary-fixed-variant": "#0040a2",
+                      "background": "#f9f9ff",
+                      "on-tertiary-fixed": "#002113",
+                      "surface-dim": "#cedbf2",
+                      "on-surface": "#101c2d",
+                      "on-error": "#ffffff",
+                      "primary": "#003d9b",
+                      "inverse-on-surface": "#ebf1ff",
+                      "surface-bright": "#f9f9ff",
+                      "secondary": "#00687a",
+                      "surface-container": "#e7eeff",
+                      "surface": "#f9f9ff",
+                      "surface-variant": "#d7e3fb",
+                      "on-secondary-fixed": "#001f26",
+                      "on-tertiary-container": "#72e9af",
+                      "on-secondary": "#ffffff",
+                      "primary-fixed": "#dae2ff",
+                      "on-tertiary": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "tertiary": "#004e32",
+                      "on-secondary-fixed-variant": "#004e5d",
+                      "primary-container": "#0052cc",
+                      "outline": "#737685",
+                      "secondary-fixed": "#adecff",
+                      "on-secondary-container": "#006374",
+                      "on-primary": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xl": "32px",
+                      "container-max": "1280px",
+                      "gutter": "24px",
+                      "base": "8px",
+                      "xs": "4px",
+                      "md": "16px",
+                      "lg": "24px",
+                      "sm": "12px",
+                      "xxl": "48px"
+              },
+              "fontFamily": {
+                      "headline-lg-mobile": ["Inter"],
+                      "body-md": ["Inter"],
+                      "caption": ["Inter"],
+                      "headline-lg": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "title-lg": ["Inter"],
+                      "label-md": ["Inter"],
+                      "display-lg": ["Inter"],
+                      "body-lg": ["Inter"]
+              },
+              "fontSize": {
+                      "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "caption": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "title-lg": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        input:focus, select:focus {
+            box-shadow: 0 0 0 2px var(--tw-ring-color);
+        }
+    </style>
+</head>
+<body class="bg-surface min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 antialiased">
+<!-- Main Registration Card -->
+<div class="max-w-3xl w-full space-y-8 bg-surface-container-lowest p-8 sm:p-10 rounded-xl border border-outline-variant shadow-sm relative overflow-hidden">
+<!-- Subtle background accent -->
+<div class="absolute top-0 left-0 w-full h-2 bg-primary"></div>
+<!-- Header -->
+<div class="text-center">
+<h1 class="font-display-lg text-display-lg text-primary tracking-tight">GCI-JJ</h1>
+<h2 class="mt-4 font-headline-md text-headline-md text-on-surface">Registro de Paciente</h2>
+<p class="mt-2 font-body-md text-body-md text-on-surface-variant">Ingrese sus datos personales para crear su historia clínica digital.</p>
+</div>
+<!-- Registration Form -->
+<form action="#" class="mt-8 space-y-6" method="POST" id="registrationForm">
+<div class="grid grid-cols-1 gap-y-6 gap-x-6 sm:grid-cols-2">
+<!-- Document Type -->
+<div class="col-span-1">
+<label class="block font-label-md text-label-md text-on-surface mb-2" for="doc_type">Tipo de Documento</label>
+<div class="relative">
+<select class="appearance-none block w-full px-4 py-3 border border-outline-variant rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:ring-primary focus:border-primary transition-colors cursor-pointer pr-10" id="doc_type" name="tipo_documento" required="">
+<option disabled="" selected="" value="">Seleccione...</option>
+<option value="CC">Cédula de Ciudadanía (CC)</option>
+<option value="TI">Tarjeta de Identidad (TI)</option>
+<option value="CE">Cédula de Extranjería (CE)</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-on-surface-variant">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Document Number -->
+<div class="col-span-1">
+<label class="block font-label-md text-label-md text-on-surface mb-2" for="doc_number">Número de Documento</label>
+<input class="block w-full px-4 py-3 border border-outline-variant rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-primary focus:border-primary transition-colors" id="doc_number" name="documento" placeholder="Ej: 1234567890" required="" type="text"/>
+</div>
+<!-- Teléfono -->
+<div class="col-span-1">
+<label class="block font-label-md text-label-md text-on-surface mb-2" for="telefono">Teléfono</label>
+<input class="block w-full px-4 py-3 border border-outline-variant rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-primary focus:border-primary transition-colors" id="telefono" name="telefono" placeholder="Ej: 3123456789" required="" type="tel"/>
+</div>
+<!-- Names -->
+<div class="col-span-1 sm:col-span-2">
+<label class="block font-label-md text-label-md text-on-surface mb-2" for="names">Nombres Completos</label>
+<input class="block w-full px-4 py-3 border border-outline-variant rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-primary focus:border-primary transition-colors" id="names" name="nombre" placeholder="Ej: Juan Carlos" required="" type="text"/>
+</div>
+<!-- First Last Name -->
+<div class="col-span-1">
+<label class="block font-label-md text-label-md text-on-surface mb-2" for="first_last_name">Primer Apellido</label>
+<input class="block w-full px-4 py-3 border border-outline-variant rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-primary focus:border-primary transition-colors" id="first_last_name" name="primer_apellido" placeholder="Ej: Pérez" required="" type="text"/>
+</div>
+<!-- Second Last Name -->
+<div class="col-span-1">
+<label class="block font-label-md text-label-md text-on-surface mb-2" for="second_last_name">Segundo Apellido</label>
+<input class="block w-full px-4 py-3 border border-outline-variant rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-primary focus:border-primary transition-colors" id="second_last_name" name="segundo_apellido" placeholder="Ej: Gómez" type="text"/>
+</div>
+<!-- Date of Birth -->
+<div class="col-span-1 sm:col-span-2">
+<label class="block font-label-md text-label-md text-on-surface mb-2">Fecha de Nacimiento</label>
+<div class="grid grid-cols-3 gap-4">
+<div class="relative">
+<select name="birth_day" aria-label="Día" required class="appearance-none block w-full px-4 py-3 border border-outline-variant rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:ring-primary focus:border-primary transition-colors cursor-pointer pr-10">
+<option disabled="" selected="" value="">Día</option>
+<option value="01">01</option>
+<option value="02">02</option>
+<option value="03">03</option>
+<option value="04">04</option>
+<option value="05">05</option>
+<option value="06">06</option>
+<option value="07">07</option>
+<option value="08">08</option>
+<option value="09">09</option>
+<option value="10">10</option>
+<option value="11">11</option>
+<option value="12">12</option>
+<option value="13">13</option>
+<option value="14">14</option>
+<option value="15">15</option>
+<option value="16">16</option>
+<option value="17">17</option>
+<option value="18">18</option>
+<option value="19">19</option>
+<option value="20">20</option>
+<option value="21">21</option>
+<option value="22">22</option>
+<option value="23">23</option>
+<option value="24">24</option>
+<option value="25">25</option>
+<option value="26">26</option>
+<option value="27">27</option>
+<option value="28">28</option>
+<option value="29">29</option>
+<option value="30">30</option>
+<option value="31">31</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">expand_more</span>
+</div>
+</div>
+<div class="relative">
+<select name="birth_month" aria-label="Mes" required class="appearance-none block w-full px-4 py-3 border border-outline-variant rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:ring-primary focus:border-primary transition-colors cursor-pointer pr-10">
+<option disabled="" selected="" value="">Mes</option>
+<option value="01">Enero</option>
+<option value="02">Febrero</option>
+<option value="03">Marzo</option>
+<option value="04">Abril</option>
+<option value="05">Mayo</option>
+<option value="06">Junio</option>
+<option value="07">Julio</option>
+<option value="08">Agosto</option>
+<option value="09">Septiembre</option>
+<option value="10">Octubre</option>
+<option value="11">Noviembre</option>
+<option value="12">Diciembre</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">expand_more</span>
+</div>
+</div>
+<div class="relative">
+<select name="birth_year" aria-label="Año" required class="appearance-none block w-full px-4 py-3 border border-outline-variant rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:ring-primary focus:border-primary transition-colors cursor-pointer pr-10">
+<option disabled="" selected="" value="">Año</option>
+<option value="2026">2026</option>
+<option value="2025">2025</option>
+<option value="2024">2024</option>
+<option value="2023">2023</option>
+<option value="2022">2022</option>
+<option value="2021">2021</option>
+<option value="2020">2020</option>
+<option value="2019">2019</option>
+<option value="2018">2018</option>
+<option value="2017">2017</option>
+<option value="2016">2016</option>
+<option value="2015">2015</option>
+<option value="2014">2014</option>
+<option value="2013">2013</option>
+<option value="2012">2012</option>
+<option value="2011">2011</option>
+<option value="2010">2010</option>
+<option value="2009">2009</option>
+<option value="2008">2008</option>
+<option value="2007">2007</option>
+<option value="2006">2006</option>
+<option value="2005">2005</option>
+<option value="2004">2004</option>
+<option value="2003">2003</option>
+<option value="2002">2002</option>
+<option value="2001">2001</option>
+<option value="2000">2000</option>
+<option value="1999">1999</option>
+<option value="1998">1998</option>
+<option value="1997">1997</option>
+<option value="1996">1996</option>
+<option value="1995">1995</option>
+<option value="1994">1994</option>
+<option value="1993">1993</option>
+<option value="1992">1992</option>
+<option value="1991">1991</option>
+<option value="1990">1990</option>
+<option value="1989">1989</option>
+<option value="1988">1988</option>
+<option value="1987">1987</option>
+<option value="1986">1986</option>
+<option value="1985">1985</option>
+<option value="1984">1984</option>
+<option value="1983">1983</option>
+<option value="1982">1982</option>
+<option value="1981">1981</option>
+<option value="1980">1980</option>
+<option value="1979">1979</option>
+<option value="1978">1978</option>
+<option value="1977">1977</option>
+<option value="1976">1976</option>
+<option value="1975">1975</option>
+<option value="1974">1974</option>
+<option value="1973">1973</option>
+<option value="1972">1972</option>
+<option value="1971">1971</option>
+<option value="1970">1970</option>
+<option value="1969">1969</option>
+<option value="1968">1968</option>
+<option value="1967">1967</option>
+<option value="1966">1966</option>
+<option value="1965">1965</option>
+<option value="1964">1964</option>
+<option value="1963">1963</option>
+<option value="1962">1962</option>
+<option value="1961">1961</option>
+<option value="1960">1960</option>
+<option value="1959">1959</option>
+<option value="1958">1958</option>
+<option value="1957">1957</option>
+<option value="1956">1956</option>
+<option value="1955">1955</option>
+<option value="1954">1954</option>
+<option value="1953">1953</option>
+<option value="1952">1952</option>
+<option value="1951">1951</option>
+<option value="1950">1950</option>
+<option value="1949">1949</option>
+<option value="1948">1948</option>
+<option value="1947">1947</option>
+<option value="1946">1946</option>
+<option value="1945">1945</option>
+<option value="1944">1944</option>
+<option value="1943">1943</option>
+<option value="1942">1942</option>
+<option value="1941">1941</option>
+<option value="1940">1940</option>
+<option value="1939">1939</option>
+<option value="1938">1938</option>
+<option value="1937">1937</option>
+<option value="1936">1936</option>
+<option value="1935">1935</option>
+<option value="1934">1934</option>
+<option value="1933">1933</option>
+<option value="1932">1932</option>
+<option value="1931">1931</option>
+<option value="1930">1930</option>
+<option value="1929">1929</option>
+<option value="1928">1928</option>
+<option value="1927">1927</option>
+<option value="1926">1926</option>
+<option value="1925">1925</option>
+<option value="1924">1924</option>
+<option value="1923">1923</option>
+<option value="1922">1922</option>
+<option value="1921">1921</option>
+<option value="1920">1920</option>
+<option value="1919">1919</option>
+<option value="1918">1918</option>
+<option value="1917">1917</option>
+<option value="1916">1916</option>
+<option value="1915">1915</option>
+<option value="1914">1914</option>
+<option value="1913">1913</option>
+<option value="1912">1912</option>
+<option value="1911">1911</option>
+<option value="1910">1910</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Divider -->
+<div class="col-span-1 sm:col-span-2 py-2">
+<div class="relative">
+<div aria-hidden="true" class="absolute inset-0 flex items-center">
+<div class="w-full border-t border-outline-variant"></div>
+</div>
+<div class="relative flex justify-center">
+<span class="px-2 bg-surface-container-lowest text-on-surface-variant font-label-md text-label-md">Datos de Acceso</span>
+</div>
+</div>
+</div>
+<!-- Email -->
+<div class="col-span-1 sm:col-span-2">
+<label class="block font-label-md text-label-md text-on-surface mb-2" for="email">Correo Electrónico</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-on-surface-variant">mail</span>
+</div>
+<input class="block w-full pl-10 pr-3 py-3 border border-outline-variant rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-primary focus:border-primary transition-colors" id="email" name="correo" placeholder="juan.perez@ejemplo.com" required="" type="email"/>
+</div>
+</div>
+<!-- Username -->
+<div class="col-span-1 sm:col-span-2">
+<label class="block font-label-md text-label-md text-on-surface mb-2" for="username">Nombre de Usuario</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-on-surface-variant">person</span>
+</div>
+<input class="block w-full pl-10 pr-3 py-3 border border-outline-variant rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-primary focus:border-primary transition-colors" id="username" name="username" placeholder="juan.perez" required="" type="text"/>
+</div>
+</div>
+<!-- Password -->
+<div class="col-span-1">
+<label class="block font-label-md text-label-md text-on-surface mb-2" for="password">Contraseña</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-on-surface-variant">lock</span>
+</div>
+<input class="block w-full pl-10 pr-10 py-3 border border-outline-variant rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-primary focus:border-primary transition-colors" id="password" name="password" placeholder="••••••••" required="" type="password"/>
+<button id="toggle_password" class="absolute inset-y-0 right-0 pr-3 flex items-center text-on-surface-variant hover:text-on-surface transition-colors focus:outline-none" type="button" aria-label="Mostrar contraseña">
+<span class="material-symbols-outlined">visibility_off</span>
+</button>
+</div>
+</div>
+<!-- Confirm Password -->
+<div class="col-span-1">
+<label class="block font-label-md text-label-md text-on-surface mb-2" for="confirm_password">Confirmar Contraseña</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-on-surface-variant">lock_reset</span>
+</div>
+<input class="block w-full pl-10 pr-10 py-3 border border-outline-variant rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-primary focus:border-primary transition-colors" id="confirm_password" name="confirm_password" placeholder="••••••••" required="" type="password"/>
+<button id="toggle_confirm_password" class="absolute inset-y-0 right-0 pr-3 flex items-center text-on-surface-variant hover:text-on-surface transition-colors focus:outline-none" type="button" aria-label="Mostrar contraseña">
+<span class="material-symbols-outlined">visibility_off</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Validation Note -->
+<div class="pt-2 flex items-start gap-2 text-on-surface-variant font-caption text-caption">
+<span class="material-symbols-outlined text-[16px]">info</span>
+<p>Todos los campos son obligatorios para continuar con el registro.</p>
+</div>
+<!-- Feedback -->
+<div id="formFeedback" role="status" aria-live="polite" class="pt-2 text-sm font-body-md text-on-surface-variant"></div>
+<!-- Actions -->
+<div class="pt-4">
+<button id="submit_button" class="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-lg shadow-none font-label-md text-label-md text-on-surface-variant bg-surface-variant cursor-not-allowed transition-colors" disabled type="submit">
+<span>Completar Registro</span>
+<span class="material-symbols-outlined text-[20px]">how_to_reg</span>
+</button>
+</div>
+<div class="text-center mt-6">
+<p class="font-body-md text-body-md text-on-surface-variant">
+                    ¿Ya tiene una cuenta? 
+                    <a class="font-label-md text-label-md text-primary hover:text-primary-fixed-variant transition-colors underline-offset-2 hover:underline" href="index.html">Iniciar sesión aquí</a>
+</p>
+</div>
+</form>
+</div>
+<script src="js/register.js?v=2" defer></script>
+</body></html>
+</file>
+
+<file path="dockerfile">
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+EXPOSE 8085
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8085"]
+</file>
+
+<file path="requirements.txt">
+annotated-doc==0.0.4
+annotated-types==0.7.0
+anyio==4.13.0
+click==8.4.0
+dnspython==2.8.0
+email-validator==2.3.0
+fastapi==0.136.1
+greenlet==3.5.1
+h11==0.16.0
+idna==3.15
+psycopg2-binary==2.9.12
+pydantic==2.13.4
+pydantic_core==2.46.4
+python-dotenv==1.2.2
+SQLAlchemy==2.0.49
+starlette==1.0.0
+typing-inspection==0.4.2
+typing_extensions==4.15.0
+uvicorn==0.47.0
+</file>
+
+</files>
