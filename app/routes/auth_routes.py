@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import or_
 
 from sqlalchemy.orm import Session
 
@@ -7,10 +8,29 @@ from app.database import get_db
 from app.models.usuarios_model import Usuario
 from app.models.pacientes_model import Paciente
 
-from app.schemas.usuario_schema import UsuarioCreate, UsuarioResponse
+from app.schemas.usuario_schema import UsuarioCreate, UsuarioResponse, LoginRequest
 
 
 router = APIRouter()
+
+@router.post("/login", response_model=UsuarioResponse)
+def login_usuario(
+    login: LoginRequest,
+    db: Session = Depends(get_db)
+):
+    usuario = db.query(Usuario).filter(
+        or_(Usuario.username == login.username, Usuario.correo == login.username),
+        Usuario.password == login.password
+    ).first()
+
+    if not usuario:
+        raise HTTPException(
+            status_code=401,
+            detail="Usuario o contraseña incorrectos"
+        )
+
+    return usuario
+
 
 @router.post("/registro", response_model=UsuarioResponse)
 

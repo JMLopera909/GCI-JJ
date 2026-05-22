@@ -14,6 +14,11 @@ class UsuarioCreate(BaseModel):
     password: str
 
 
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+
 class UsuarioResponse(BaseModel):
     id: int
     nombre: str

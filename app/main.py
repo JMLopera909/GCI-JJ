@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 import app.models
 
 from app.routes.auth_routes import router as auth_router
@@ -15,3 +16,5 @@ app.add_middleware(
 )
 
 app.include_router(auth_router)
+
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
