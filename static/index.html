@@ -141,7 +141,7 @@
 <p class="font-body-md text-body-md text-on-surface-variant text-center">Ingresa tus credenciales para acceder al sistema.</p>
 </div>
 <!-- Login Form -->
-<form action="#" class="flex flex-col gap-md" method="POST">
+<form action="#" class="flex flex-col gap-md" method="POST" id="loginForm">
 <!-- Email/Username Field -->
 <div class="flex flex-col gap-xs">
 <label class="font-label-md text-label-md text-on-surface" for="username">Nombre de usuario o correo electrónico</label>
@@ -166,6 +166,7 @@
                     Iniciar sesión
                     <span class="material-symbols-outlined text-[20px]">login</span>
 </button>
+<div id="loginFeedback" role="status" aria-live="polite" class="mt-4 text-sm font-body-md text-error hidden"></div>
 </form>
 <!-- Divider -->
 <div class="mt-lg mb-lg relative flex items-center justify-center">
@@ -187,4 +188,5 @@
             </p>
 </div>
 </main>
+<script src="js/login.js"></script>
 </body></html>

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html class="light" lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>GCI-JJ - Dashboard Paciente</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary-container": "#0052cc",
+            "surface-container-high": "#dee9ff",
+            "secondary-fixed-dim": "#5dd6f3",
+            "tertiary-container": "#006844",
+            "surface-tint": "#0c56d0",
+            "error": "#ba1a1a",
+            "surface-container-low": "#f0f3ff",
+            "surface": "#f9f9ff",
+            "on-tertiary-fixed-variant": "#005235",
+            "primary-fixed": "#dae2ff",
+            "surface-variant": "#d7e3fb",
+            "primary": "#003d9b",
+            "on-secondary-fixed": "#001f26",
+            "surface-container": "#e7eeff",
+            "secondary-fixed": "#adecff",
+            "on-secondary-container": "#006374",
+            "inverse-surface": "#253143",
+            "tertiary-fixed": "#82f9be",
+            "outline": "#737685",
+            "on-primary-fixed": "#001848",
+            "on-error-container": "#93000a",
+            "on-tertiary-fixed": "#002113",
+            "tertiary": "#004e32",
+            "secondary-container": "#6ae1ff",
+            "on-secondary": "#ffffff",
+            "surface-dim": "#cedbf2",
+            "background": "#f9f9ff",
+            "on-primary-container": "#c4d2ff",
+            "surface-bright": "#f9f9ff",
+            "primary-fixed-dim": "#b2c5ff",
+            "on-surface-variant": "#434654",
+            "on-error": "#ffffff",
+            "on-background": "#101c2d",
+            "error-container": "#ffdad6",
+            "on-tertiary": "#ffffff",
+            "on-primary-fixed-variant": "#0040a2",
+            "on-surface": "#101c2d",
+            "surface-container-lowest": "#ffffff",
+            "tertiary-fixed-dim": "#65dca4",
+            "on-secondary-fixed-variant": "#004e5d",
+            "on-primary": "#ffffff",
+            "secondary": "#00687a",
+            "outline-variant": "#c3c6d6",
+            "inverse-primary": "#b2c5ff",
+            "surface-container-highest": "#d7e3fb",
+            "on-tertiary-container": "#72e9af",
+            "inverse-on-surface": "#ebf1ff"
+          },
+          borderRadius: {
+            DEFAULT: "0.25rem",
+            lg: "0.5rem",
+            xl: "0.75rem",
+            full: "9999px"
+          },
+          spacing: {
+            md: "16px",
+            xs: "4px",
+            xxl: "48px",
+            xl: "32px",
+            lg: "24px",
+            sm: "12px",
+            "container-max": "1280px",
+            base: "8px",
+            gutter: "24px"
+          },
+          fontFamily: {
+            "headline-lg": ["Inter"],
+            "headline-md": ["Inter"],
+            "display-lg": ["Inter"],
+            caption: ["Inter"],
+            "body-lg": ["Inter"],
+            "label-md": ["Inter"],
+            "title-lg": ["Inter"],
+            "body-md": ["Inter"],
+            "headline-lg-mobile": ["Inter"]
+          },
+          fontSize: {
+            "headline-lg": ["32px", { lineHeight: "40px", letterSpacing: "-0.01em", fontWeight: "600" }],
+            "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+            "display-lg": ["48px", { lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "700" }],
+            caption: ["12px", { lineHeight: "16px", fontWeight: "400" }],
+            "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }],
+            "label-md": ["14px", { lineHeight: "20px", letterSpacing: "0.05em", fontWeight: "500" }],
+            "title-lg": ["20px", { lineHeight: "28px", fontWeight: "600" }],
+            "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+            "headline-lg-mobile": ["24px", { lineHeight: "32px", fontWeight: "600" }]
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #F4F5F7; }
+    .card-shadow { box-shadow: 0px 4px 12px rgba(9, 30, 66, 0.08); }
+  </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col">
+  <header class="bg-surface-container-lowest w-full top-0 border-b border-outline-variant z-50 sticky">
+    <div class="flex flex-col md:flex-row justify-between items-center w-full px-lg max-w-container-max mx-auto py-sm gap-sm">
+      <div class="flex items-center gap-3">
+        <div class="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">G</div>
+        <div>
+          <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-[0.15em]">Paciente</p>
+          <h1 class="font-headline-md text-headline-md text-primary">GCI-JJ</h1>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <nav class="hidden md:flex gap-6 text-body-md text-on-surface-variant">
+          <a href="#" class="hover:text-primary transition-colors">Inicio</a>
+          <a href="#" class="hover:text-primary transition-colors">Historial</a>
+          <a href="#" class="hover:text-primary transition-colors">Citas</a>
+          <a href="#" class="hover:text-primary transition-colors">Recetas</a>
+        </nav>
+        <button class="text-on-surface-variant hover:text-primary transition-colors">
+          <span class="material-symbols-outlined">notifications</span>
+        </button>
+        <div class="flex items-center gap-3">
+          <div class="h-10 w-10 rounded-full bg-surface-variant border border-outline-variant overflow-hidden">
+            <img id="patientAvatar" alt="Avatar del paciente" class="w-full h-full object-cover" src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=200&amp;q=80" />
+          </div>
+          <div class="hidden md:block">
+            <p id="patientName" class="font-body-md text-body-md text-on-background">Juan Carlos Pérez</p>
+          </div>
+          <button id="logoutButton" class="hidden md:inline-flex items-center gap-2 rounded-full border border-outline-variant bg-surface-container px-3 py-2 text-sm font-medium text-on-surface transition-colors hover:border-primary hover:bg-primary-container/10 hover:text-primary">
+            <span class="material-symbols-outlined text-[18px]">logout</span>
+            Cerrar sesión
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+  <main class="flex-grow w-full max-w-container-max mx-auto px-lg py-xl flex flex-col gap-xl">
+    <section class="grid gap-lg lg:grid-cols-[1.8fr_1fr]">
+      <div class="bg-surface-container-lowest rounded-lg border border-outline-variant card-shadow p-lg">
+        <div class="flex flex-col gap-3">
+          <div class="flex flex-col gap-2">
+            <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-[0.15em]">Resumen del paciente</p>
+            <h2 class="font-display-lg text-display-lg text-primary">Hola, <span id="patientFirstName">Juan</span></h2>
+          </div>
+          <p class="font-body-lg text-body-lg text-on-surface-variant">Revisa tu información personal, tu próxima cita y el estado de tu historial médico.</p>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <article class="rounded-2xl bg-white border border-outline-variant p-4 shadow-sm">
+              <p class="font-label-md text-label-md text-on-surface-variant">Próxima cita</p>
+              <p id="nextAppointmentDate" class="mt-2 font-title-lg text-title-lg text-on-background">24 de junio, 2026</p>
+              <p id="nextAppointmentTime" class="font-body-md text-body-md text-on-surface-variant">09:30 AM</p>
+            </article>
+            <article class="rounded-2xl bg-white border border-outline-variant p-4 shadow-sm">
+              <p class="font-label-md text-label-md text-on-surface-variant">Estado de afiliación</p>
+              <p id="membershipStatus" class="mt-2 font-title-lg text-title-lg text-on-background">Activo</p>
+              <p class="font-body-md text-body-md text-on-surface-variant">Nivel de cobertura: Básico</p>
+            </article>
+          </div>
+        </div>
+      </div>
+      <div class="grid gap-4">
+        <div class="rounded-2xl bg-white border border-outline-variant card-shadow p-lg">
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-[0.15em]">Acciones rápidas</p>
+              <h3 class="font-title-lg text-title-lg text-on-background">Tareas pendientes</h3>
+            </div>
+          </div>
+          <div class="mt-6 grid gap-3">
+            <button class="w-full rounded-xl bg-primary text-on-primary font-label-md text-label-md py-3 hover:bg-primary-container transition-colors">Ver historia clínica</button>
+            <button class="w-full rounded-xl border border-outline-variant bg-surface text-on-surface font-label-md text-label-md py-3 hover:border-primary hover:text-primary transition-colors">Solicitar nueva cita</button>
+          </div>
+        </div>
+        <div class="rounded-2xl bg-white border border-outline-variant card-shadow p-lg">
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-[0.15em]">Notificaciones</p>
+              <h3 class="font-title-lg text-title-lg text-on-background">Actualizaciones</h3>
+            </div>
+          </div>
+          <div class="mt-6 space-y-4 text-body-md text-on-surface-variant">
+            <p>✔ Tu solicitud de cita fue confirmada.</p>
+            <p>✔ Tienes resultados de laboratorio nuevos.</p>
+            <p>✔ Revisa tu próxima consulta con el doctor.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="grid gap-lg lg:grid-cols-2">
+      <div class="bg-white border border-outline-variant rounded-3xl card-shadow p-lg">
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-[0.15em]">Información básica</p>
+            <h2 class="font-title-lg text-title-lg text-on-background">Datos del paciente</h2>
+          </div>
+          <button class="text-primary font-label-md hover:text-primary-fixed-variant transition-colors">Editar</button>
+        </div>
+        <div class="mt-6 grid gap-4 sm:grid-cols-2">
+          <div class="rounded-2xl bg-surface-container-lowest p-4">
+            <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-[0.15em]">Documento</p>
+            <p id="patientDocument" class="mt-2 font-body-md text-body-md text-on-background">12345678-9</p>
+          </div>
+          <div class="rounded-2xl bg-surface-container-lowest p-4">
+            <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-[0.15em]">Correo</p>
+            <p id="patientEmail" class="mt-2 font-body-md text-body-md text-on-background">juan.perez@ejemplo.com</p>
+          </div>
+          <div class="rounded-2xl bg-surface-container-lowest p-4">
+            <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-[0.15em]">Teléfono</p>
+            <p id="patientPhone" class="mt-2 font-body-md text-body-md text-on-background">312 345 6789</p>
+          </div>
+          <div class="rounded-2xl bg-surface-container-lowest p-4">
+            <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-[0.15em]">Fecha de nacimiento</p>
+            <p id="patientBirthday" class="mt-2 font-body-md text-body-md text-on-background">15 de mayo, 1980</p>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white border border-outline-variant rounded-3xl card-shadow p-lg">
+        <div>
+          <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-[0.15em]">Resumen médico</p>
+          <h2 class="font-title-lg text-title-lg text-on-background">Últimos datos</h2>
+        </div>
+        <div class="mt-6 grid gap-4">
+          <div class="rounded-2xl bg-surface-container-lowest p-4">
+            <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-[0.15em]">Última visita</p>
+            <p id="lastVisit" class="mt-2 font-body-md text-body-md text-on-background">6 de mayo, 2026</p>
+          </div>
+          <div class="rounded-2xl bg-surface-container-lowest p-4">
+            <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-[0.15em]">Médico asignado</p>
+            <p id="assignedDoctor" class="mt-2 font-body-md text-body-md text-on-background">Dra. Mariana López</p>
+          </div>
+          <div class="rounded-2xl bg-surface-container-lowest p-4">
+            <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-[0.15em]">Estado de salud</p>
+            <p id="healthStatus" class="mt-2 font-body-md text-body-md text-on-background">Estable</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="bg-surface-container-low w-full border-t border-outline-variant mt-auto">
+    <div class="flex flex-col md:flex-row justify-between items-center w-full px-lg py-xl max-w-container-max mx-auto gap-lg">
+      <div class="font-title-lg text-title-lg text-primary">GCI-JJ</div>
+      <nav class="flex flex-wrap justify-center gap-md">
+        <a class="font-caption text-caption text-on-surface-variant hover:text-on-surface transition-colors" href="#">Privacidad</a>
+        <a class="font-caption text-caption text-on-surface-variant hover:text-on-surface transition-colors" href="#">Términos</a>
+        <a class="font-caption text-caption text-on-surface-variant hover:text-on-surface transition-colors" href="#">Soporte</a>
+      </nav>
+      <div class="font-caption text-caption text-on-surface-variant text-center md:text-right">© 2026 GCI-JJ Medical Group.</div>
+    </div>
+  </footer>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
