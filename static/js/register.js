@@ -78,9 +78,8 @@ document.addEventListener('DOMContentLoaded', function () {
     setLoading(true);
     setFeedback('Enviando datos al servidor...', 'info');
 
-    // Build payload exactly according to the backend schema.
-    // Los campos de fecha de nacimiento son parte de la UI actual,
-    // pero el backend existente de /registro no los consume.
+    // Build payload according to the backend schema.
+    // fecha_nacimiento se toma de los selects de día/mes/año.
     const payload = {
       nombre: form.nombre.value.trim(),
       primer_apellido: form.primer_apellido.value.trim(),
@@ -96,6 +95,15 @@ document.addEventListener('DOMContentLoaded', function () {
     if (telefonoValue) {
       payload.telefono = telefonoValue;
     }
+
+    const birthDay = document.getElementById('birth_day')?.value;
+    const birthMonth = document.getElementById('birth_month')?.value;
+    const birthYear = document.getElementById('birth_year')?.value;
+    if (birthDay && birthMonth && birthYear) {
+      payload.fecha_nacimiento = `${birthYear}-${birthMonth}-${birthDay}`;
+    }
+
+    console.log('Registro payload:', payload);
 
     try {
       const response = await fetch(url, {

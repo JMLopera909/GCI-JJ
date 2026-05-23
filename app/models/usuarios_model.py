@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Date
 from app.database import Base
 
 class Usuario(Base):
@@ -10,6 +10,7 @@ class Usuario(Base):
     tipo_documento = Column(String, nullable=False)
     documento = Column(String, unique=True, nullable=False)
     telefono = Column(String)
+    fecha_nacimiento = Column(Date)
     correo = Column(String, unique=True, nullable=False)
     username = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)

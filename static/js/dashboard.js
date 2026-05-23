@@ -15,6 +15,7 @@ function populateDashboard(user) {
   const patientDocument = document.getElementById('patientDocument');
   const patientEmail = document.getElementById('patientEmail');
   const patientPhone = document.getElementById('patientPhone');
+  const patientBirthday = document.getElementById('patientBirthday');
 
   if (patientName) {
     patientName.textContent = `${user.nombre} ${user.primer_apellido}`;
@@ -30,6 +31,11 @@ function populateDashboard(user) {
   }
   if (patientPhone) {
     patientPhone.textContent = user.telefono || 'No disponible';
+  }
+  if (patientBirthday && user.fecha_nacimiento) {
+    const date = new Date(user.fecha_nacimiento);
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    patientBirthday.textContent = date.toLocaleDateString('es-ES', options);
   }
 }
 

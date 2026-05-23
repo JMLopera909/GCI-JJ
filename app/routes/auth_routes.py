@@ -64,6 +64,8 @@ def registrar_usuario(
 
         telefono=usuario.telefono,
 
+        fecha_nacimiento=usuario.fecha_nacimiento,
+
         correo=usuario.correo,
 
         username=usuario.username,

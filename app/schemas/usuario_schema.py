@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
+from datetime import date
 
 
 class UsuarioCreate(BaseModel):
@@ -9,6 +10,7 @@ class UsuarioCreate(BaseModel):
     tipo_documento: str
     documento: str
     telefono: Optional[str] = None
+    fecha_nacimiento: Optional[date] = None
     correo: EmailStr
     username: str
     password: str
@@ -27,6 +29,7 @@ class UsuarioResponse(BaseModel):
     tipo_documento: str
     documento: str
     telefono: Optional[str] = None
+    fecha_nacimiento: Optional[date] = None
     correo: EmailStr
     username: str
     activo: bool
