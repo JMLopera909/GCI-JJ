@@ -58,6 +58,33 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+  const togglePasswordButton = document.getElementById('toggle_password');
+  const toggleConfirmPasswordButton = document.getElementById('toggle_confirm_password');
+
+  if (togglePasswordButton) {
+    const togglePasswordIcon = togglePasswordButton.querySelector('span');
+    togglePasswordButton.addEventListener('click', () => {
+      const isVisible = passwordInput.type === 'text';
+      passwordInput.type = isVisible ? 'password' : 'text';
+      if (togglePasswordIcon) {
+        togglePasswordIcon.textContent = isVisible ? 'visibility_off' : 'visibility';
+      }
+      togglePasswordButton.setAttribute('aria-label', isVisible ? 'Mostrar contraseña' : 'Ocultar contraseña');
+    });
+  }
+
+  if (toggleConfirmPasswordButton) {
+    const toggleConfirmPasswordIcon = toggleConfirmPasswordButton.querySelector('span');
+    toggleConfirmPasswordButton.addEventListener('click', () => {
+      const isVisible = confirmPasswordInput.type === 'text';
+      confirmPasswordInput.type = isVisible ? 'password' : 'text';
+      if (toggleConfirmPasswordIcon) {
+        toggleConfirmPasswordIcon.textContent = isVisible ? 'visibility_off' : 'visibility';
+      }
+      toggleConfirmPasswordButton.setAttribute('aria-label', isVisible ? 'Mostrar contraseña' : 'Ocultar contraseña');
+    });
+  }
+
   function setLoading(isLoading) {
     submitButton.disabled = isLoading || !form.checkValidity();
     submitButton.setAttribute('aria-busy', String(isLoading));
